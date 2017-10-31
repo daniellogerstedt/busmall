@@ -4,6 +4,7 @@
 
 // Declared Variables
 
+var possibleInputs;
 var counter = 0;
 var firstImageNumber;
 var secondImageNumber;
@@ -31,7 +32,7 @@ for (var i = 0; i < imgNames.length; i++) {
   imgArray.push(new ImageBuilder(imgNames[i]));
 }
 
-// Random Number Generator
+// Random Number Generator -- generates numbers and verifies they weren't used the previous round.
 
 function getRandom() {
   var generatedNumber = Math.floor(Math.random() * imgArray.length); //Image Array Length
@@ -42,7 +43,7 @@ function getRandom() {
   return generatedNumber;
 }
 
-// Random Number Comparator
+// Random Number Comparator -- compares random numbers to verify they aren't the same.
 
 function compareNumbers() {
   firstImageNumber = getRandom();
@@ -65,6 +66,16 @@ function compareNumbers() {
   }
 }
 
+// Possible Input Array Updater -- Helper to update values as needed for global input arrays.
+
+function inputUpdater () {
+  possibleInputs = {
+    previous: [imgArray[previousFirst], imgArray[previousSecond], imgArray[previousThird]],
+    current: [imgArray[firstImageNumber], imgArray[secondImageNumber], imgArray[thirdImageNumber]],
+    blank: [{name: 'click', path: './assets/blank.jpg'}, {name: 'an', path: './assets/blank.jpg'}, {name: 'image', path: './assets/blank.jpg'}]
+  };
+}
+
 // Test Function for Random Number Generation
 
 // function testRun(){
@@ -84,87 +95,71 @@ function compareNumbers() {
 
 // testRun();
 
-// Event Listener Manipulation
+// Event Listener Manipulation -- Based on input arguments will add/remove specific event listeners.
 
-function editEventListeners(flag) { //true will add listeners and false will remove them.
-  if (counter !== 25 && flag === 'add') {
+function editEventListeners(flag, change) {
+  inputUpdater();
+  if (flag === 'add') {
     console.log('c not 0', counter != 0);
     console.log('c', counter);
-    document.getElementById(imgArray[firstImageNumber].name).addEventListener('click', displayPage);
-    document.getElementById(imgArray[secondImageNumber].name).addEventListener('click', displayPage);
-    document.getElementById(imgArray[thirdImageNumber].name).addEventListener('click', displayPage);
-  } else if (counter === 25 && flag === 'add') {
-    document.getElementById('click').addEventListener('click', displayPage);
-    document.getElementById('an').addEventListener('click', displayPage);
-    document.getElementById('image').addEventListener('click', displayPage);
+    for (var a = 0; a < 3; a++) {
+      document.getElementById(possibleInputs[change][a].name).addEventListener('click', displayPage);
+    }
   }
-  if (counter !== 0 && flag === 'remove') { //only removes event listeners if they are present.
-    console.log('c not 0', counter !== 0);
-    console.log('c', counter);
-    document.getElementById(imgArray[previousFirst].name).removeEventListener('click', displayPage);
-    document.getElementById(imgArray[previousSecond].name).removeEventListener('click', displayPage);
-    document.getElementById(imgArray[previousThird].name).removeEventListener('click', displayPage);
-  } else if (counter === 0 && flag === 'remove'){
-    document.getElementById('click').removeEventListener('click', displayPage);
-    document.getElementById('an').removeEventListener('click', displayPage);
-    document.getElementById('image').removeEventListener('click', displayPage);
+  if (flag === 'remove'){
+    for (var r = 0; r < 3; r++) {
+      document.getElementById(possibleInputs[change][r].name).addEventListener('click', displayPage);
+    }
   }
 }
 
-// function removeImages() {
-//   document.getElementById(imgArray[previousFirst].name).remove();
-//   document.getElementById(imgArray[previousSecond].name).remove();
-//   document.getElementById(imgArray[previousThird].name).remove();
-// }
+// Increase Picked Counter -- looks at clicked image and adds to picked counter on object.
 
-// Display Page Contents function
-function displayPage() {
-  console.log(this.id);
-  if (this.id !== 'click' && this.id !== 'an' && this.id !== 'image') {
+function increasePicked(name) {
+  if (name !== 'click' && name !== 'an' && name !== 'image') {
     for (var i = 0; i < imgArray.length; i++) {
-      if (this.id === imgArray[i].name) {
+      if (name === imgArray[i].name) {
         imgArray[i].picked++;
         break;
       }
     }
   }
+}
+
+// Changes Image Sources and Ids
+
+function changeImages(add, remove) { // what am I adding what am I removing
+  inputUpdater();
+  for (var i = 0; i < 3; i++) {
+    document.getElementById(possibleInputs[remove][i].name).src = possibleInputs[add][i].path;
+    document.getElementById(possibleInputs[remove][i].name).id = possibleInputs[add][i].name;
+    if (add != 'blank') {
+      possibleInputs.current[i].displayed++;
+    }
+  };
+}
+
+// Display Page Contents function
+
+function displayPage(event) {
+  console.log(this.id);
+  increasePicked(this.id);
   if (counter === 0) {
     compareNumbers();
-    imgArray[firstImageNumber].displayed++;
-    imgArray[secondImageNumber].displayed++;
-    imgArray[thirdImageNumber].displayed++;
-    editEventListeners('remove');
-    document.getElementById('click').src = imgArray[firstImageNumber].path;
-    document.getElementById('click').id = imgArray[firstImageNumber].name;
-    document.getElementById('an').src = imgArray[secondImageNumber].path;
-    document.getElementById('an').id = imgArray[secondImageNumber].name;
-    document.getElementById('image').src = imgArray[thirdImageNumber].path;
-    document.getElementById('image').id = imgArray[thirdImageNumber].name;
-    editEventListeners('add');
+    editEventListeners('remove', 'blank');
+    changeImages('current', 'blank');
+    editEventListeners('add', 'current');
     counter++;
-  } else if (counter < 25 && counter !== 0) {
+  } else if (counter < 25 && counter > 0) {
     compareNumbers();
-    imgArray[firstImageNumber].displayed++;
-    imgArray[secondImageNumber].displayed++;
-    imgArray[thirdImageNumber].displayed++;
-    editEventListeners('remove');
-    document.getElementById(imgArray[previousFirst].name).src = imgArray[firstImageNumber].path;
-    document.getElementById(imgArray[previousFirst].name).id = imgArray[firstImageNumber].name;
-    document.getElementById(imgArray[previousSecond].name).src = imgArray[secondImageNumber].path;
-    document.getElementById(imgArray[previousSecond].name).id = imgArray[secondImageNumber].name;
-    document.getElementById(imgArray[previousThird].name).src = imgArray[thirdImageNumber].path;
-    document.getElementById(imgArray[previousThird].name).id = imgArray[thirdImageNumber].name;
-    editEventListeners('add'); // adds new event listeners and removes old ones
+    editEventListeners('remove', 'previous');
+    changeImages('current', 'previous');
+    editEventListeners('add', 'current'); // adds new event listeners and removes old ones
     counter++;
   } else if (counter === 25) {
-    editEventListeners('remove');
-    document.getElementById(imgArray[previousFirst].name).src = './assets/blank.jpg';
-    document.getElementById(imgArray[previousFirst].name).id = 'click';
-    document.getElementById(imgArray[previousSecond].name).src = './assets/blank.jpg';
-    document.getElementById(imgArray[previousSecond].name).id = 'an';
-    document.getElementById(imgArray[previousThird].name).src = './assets/blank.jpg';
-    document.getElementById(imgArray[previousThird].name).id = 'image';
-    editEventListeners('add');
+    editEventListeners('remove', 'previous');
+    changeImages('blank', 'previous');
+    editEventListeners('add', 'blank');
     counter = 0;
   }
   previousFirst = firstImageNumber;
@@ -173,6 +168,4 @@ function displayPage() {
 }
 // Test Click function
 
-document.getElementById('click').addEventListener('click', displayPage);
-document.getElementById('an').addEventListener('click', displayPage);
-document.getElementById('image').addEventListener('click', displayPage);
+editEventListeners('add', 'blank');
