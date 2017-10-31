@@ -24,7 +24,33 @@ function ImageBuilder (name) {
   this.name = name;
   this.displayed = 0;
   this.picked = 0;
+  this.color = Math.floor(Math.random() * 16777215).toString(16);
 }
+
+// Object Instanciation for Chart Objects
+var ctx = document.getElementById('clicked_chart').getContext('2d');
+var clickedChart = new Chart(ctx, {
+  // The type of chart we want to create
+  type: 'bar',
+
+  // The data for our dataset
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Number of Times Clicked',
+      backgroundColor: [],
+      borderColor: '#000',
+      data: []
+    }]
+  },
+
+  // Configuration options go here
+  options: {
+    backgroundColor: []
+  }
+});
+
+
 
 // Instanciation of Image Objects
 
@@ -32,7 +58,21 @@ for (var i = 0; i < imgNames.length; i++) {
   imgArray.push(new ImageBuilder(imgNames[i]));
 }
 
+// updates chart information after 25 images
+
+function chartUpdater() {
+  for (var l = 0; l < imgArray.length; l++) {
+    clickedChart.chart.config.data.labels.push(imgArray[l].name);
+    clickedChart.chart.config.data.datasets[0].data.push(imgArray[l].picked);
+    clickedChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
+  };
+  clickedChart.update();
+};
+
+
 // Random Number Generator -- generates numbers and verifies they weren't used the previous round.
+
+
 
 function getRandom() {
   var generatedNumber = Math.floor(Math.random() * imgArray.length); //Image Array Length
@@ -100,15 +140,13 @@ function inputUpdater () {
 function editEventListeners(flag, change) {
   inputUpdater();
   if (flag === 'add') {
-    console.log('c not 0', counter != 0);
-    console.log('c', counter);
     for (var a = 0; a < 3; a++) {
       document.getElementById(possibleInputs[change][a].name).addEventListener('click', displayPage);
     }
   }
   if (flag === 'remove'){
     for (var r = 0; r < 3; r++) {
-      document.getElementById(possibleInputs[change][r].name).addEventListener('click', displayPage);
+      document.getElementById(possibleInputs[change][r].name).removeEventListener('click', displayPage);
     }
   }
 }
@@ -141,7 +179,7 @@ function changeImages(add, remove) { // what am I adding what am I removing
 
 // Display Page Contents function
 
-function displayPage(event) {
+function displayPage() {
   console.log(this.id);
   increasePicked(this.id);
   if (counter === 0) {
@@ -159,8 +197,9 @@ function displayPage(event) {
   } else if (counter === 25) {
     editEventListeners('remove', 'previous');
     changeImages('blank', 'previous');
-    editEventListeners('add', 'blank');
+    // editEventListeners('add', 'blank');
     counter = 0;
+    chartUpdater();
   }
   previousFirst = firstImageNumber;
   previousSecond = secondImageNumber;
