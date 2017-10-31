@@ -3,4 +3,23 @@
 Body {
   Width: 1000px;
   Margin: 0 auto;
+  background: maroon;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 40px;
+  color: #fff;
+  text-align: center;
+}
+
+section {
+  width: 970px;
+  margin: 20px auto;
+}
+
+img {
+  display: inline-block;
+  width: 300px;
+  margin: 10px;
 }
