@@ -40,7 +40,7 @@ var clickedChart = new Chart(ctc, {
   data: {
     labels: [],
     datasets: [{
-      label: 'Number Of Times Clicked',
+      label: 'Number Of Times Clicked and Viewed',
       backgroundColor: [],
       borderColor: '#000',
       data: []
@@ -149,6 +149,12 @@ function chartUpdater() {
   clickedChart.update();
   percentageChart.update();
   whichImageChart.update();
+  document.getElementById('slider_section').style.visibility = 'visible';
+  document.getElementById('slider_section').style.overflow = 'visible';
+  document.getElementById('slider_section').style.height = '700px';
+  document.getElementById('click').style.display = 'none';
+  document.getElementById('an').style.display = 'none';
+  document.getElementById('image').style.display = 'none';
 };
 
 
@@ -264,40 +270,100 @@ function changeImages(add, remove) { // what am I adding what am I removing
   };
 }
 
+// Combined Image Listener System
+
+function changeListeners(added, removed) {
+  compareNumbers();
+  editEventListeners('remove', removed);
+  changeImages(added, removed);
+  editEventListeners('add', added);
+}
+
 // Display Page Contents function
 
 function displayPage() {
   console.log(this.id);
   increasePicked(this.id);
   if (counter === 0) {
-    compareNumbers();
-    editEventListeners('remove', 'blank');
-    changeImages('current', 'blank');
-    editEventListeners('add', 'current');
+    // compareNumbers();
+    // editEventListeners('remove', 'blank');
+    // changeImages('current', 'blank');
+    // editEventListeners('add', 'current');
+    changeListeners('current', 'blank');
     counter++;
+    save();
   } else if (counter < 25 && counter > 0) {
-    compareNumbers();
-    editEventListeners('remove', 'previous');
-    changeImages('current', 'previous');
-    editEventListeners('add', 'current'); // adds new event listeners and removes old ones
+    // compareNumbers();
+    // editEventListeners('remove', 'previous');
+    // changeImages('current', 'previous');
+    // editEventListeners('add', 'current'); // adds new event listeners and removes old ones
+    changeListeners('current', 'previous');
     counter++;
+    save();
   } else if (counter === 25) {
     editEventListeners('remove', 'previous');
     changeImages('blank', 'previous');
     // editEventListeners('add', 'blank');
     counter = 0;
     chartUpdater();
-    document.getElementById('slider_section').style.visibility = 'visible';
-    document.getElementById('slider_section').style.overflow = 'visible';
-    document.getElementById('slider_section').style.height = '700px';
-    document.getElementById('click').style.display = 'none';
-    document.getElementById('an').style.display = 'none';
-    document.getElementById('image').style.display = 'none';
+    save();
   }
   previousFirst = firstImageNumber;
   previousSecond = secondImageNumber;
   previousThird = thirdImageNumber;
 }
-// Test Click function
 
-editEventListeners('add', 'blank');
+// Saves App State To Local Storage
+
+function save() {
+  localStorage.counter = counter;
+  localStorage.previousFirst = previousFirst;
+  localstorage.previousSecond = previousSecond;
+  localstorage.previousThird = previousThird;
+  var saveImages = [];
+  var saveCharts = [];
+  for (var i = 0; i < imgArray.length; i++) { // stringifies/pushes objects and adds a carrot for easy splitting
+    if (i === imgArray.length - 1) saveImages.push(JSON.stringify(imgArray[i])); break;
+    saveImages.push(JSON.stringify(imgArray[i]) + '^');
+  }
+  saveCharts.push(JSON.stringify(clickedChart) + '^', JSON.stringify(percentageChart) + '^', JSON.stringify(whichImageChart));
+  localStorage.imageArray = saveImages;
+  localStorage.chartsArray = saveCharts;
+  console.log(localStorage);
+}
+
+// Loads App State From Local Storage
+
+function load() {
+  editEventListeners('add', 'blank');
+  if (!localStorage) return;
+  counter = localStorage.counter;
+  previousFirst = localStorage.previousFirst;
+  previousSecond = localStorage.previousSecond;
+  previousThird = localStorage.previousThird;
+  var savedImages = localStorage.saveImages.split('^,');
+  console.log(savedImages);
+  for (var i = 0; i < savedImages.length; i++) {
+    savedImages[i] = JSON.parse(savedImages[i]);
+  }
+  console.log(savedImages);
+  imgArray = savedImages;
+  var savedCharts = localStorage.saveCharts.split('^,');
+  clickedChart = JSON.parse(savedCharts[0]);
+  percentageChart = JSON.parse(savedCharts[1]);
+  whichImageChart = JSON.parse(savedCharts[2]);
+  if (counter != 25) {
+    changeListeners('current', 'blank');
+    previousFirst = firstImageNumber;
+    previousSecond = secondImageNumber;
+    previousThird = thirdImageNumber;
+    return;
+  }
+  chartUpdater();
+}
+
+// Initialize Application System
+
+
+load();
+save();
