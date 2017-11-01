@@ -21,5 +21,16 @@ section {
 img {
   display: inline-block;
   width: 300px;
-  margin: 10px;
+  margin: 4px;
+  border: ridge 6px #434343;
+}
+
+#slider_section {
+  margin: 0 auto;
+  visibility: hidden;
+  height: 0px;
+  width: 1000px;
+  padding: 10px;
+  overflow: hidden;
+  background: #e3e3e3;
 }
