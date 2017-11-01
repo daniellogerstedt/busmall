@@ -264,7 +264,7 @@ function changeImages(add, remove) { // what am I adding what am I removing
   for (var i = 0; i < 3; i++) {
     document.getElementById(possibleInputs[remove][i].name).src = possibleInputs[add][i].path;
     document.getElementById(possibleInputs[remove][i].name).id = possibleInputs[add][i].name;
-    if (add != 'blank') {
+    if (add != 'blank' && add != 'previous') {
       possibleInputs.current[i].displayed++;
     }
   };
@@ -291,7 +291,6 @@ function displayPage() {
     // editEventListeners('add', 'current');
     changeListeners('current', 'blank');
     counter++;
-    save();
   } else if (counter < 25 && counter > 0) {
     // compareNumbers();
     // editEventListeners('remove', 'previous');
@@ -299,71 +298,64 @@ function displayPage() {
     // editEventListeners('add', 'current'); // adds new event listeners and removes old ones
     changeListeners('current', 'previous');
     counter++;
-    save();
   } else if (counter === 25) {
     editEventListeners('remove', 'previous');
     changeImages('blank', 'previous');
     // editEventListeners('add', 'blank');
-    counter = 0;
     chartUpdater();
-    save();
   }
   previousFirst = firstImageNumber;
   previousSecond = secondImageNumber;
   previousThird = thirdImageNumber;
+  save();
 }
 
 // Saves App State To Local Storage
 
 function save() {
   localStorage.counter = counter;
+  localStorage.whichSide = whichSide;
   localStorage.previousFirst = previousFirst;
-  localstorage.previousSecond = previousSecond;
-  localstorage.previousThird = previousThird;
+  localStorage.previousSecond = previousSecond;
+  localStorage.previousThird = previousThird;
   var saveImages = [];
-  var saveCharts = [];
-  for (var i = 0; i < imgArray.length; i++) { // stringifies/pushes objects and adds a carrot for easy splitting
-    if (i === imgArray.length - 1) saveImages.push(JSON.stringify(imgArray[i])); break;
+  for (var i = 0; i < imgNames.length; i++) { // stringifies/pushes objects and adds a carrot for easy splitting
+    if (i === (imgArray.length - 1)) {
+      saveImages.push(JSON.stringify(imgArray[i]));
+      break;
+    }
     saveImages.push(JSON.stringify(imgArray[i]) + '^');
   }
-  saveCharts.push(JSON.stringify(clickedChart) + '^', JSON.stringify(percentageChart) + '^', JSON.stringify(whichImageChart));
   localStorage.imageArray = saveImages;
-  localStorage.chartsArray = saveCharts;
-  console.log(localStorage);
+
+  console.log('save', localStorage);
 }
 
 // Loads App State From Local Storage
 
 function load() {
   editEventListeners('add', 'blank');
-  if (!localStorage) return;
-  counter = localStorage.counter;
-  previousFirst = localStorage.previousFirst;
-  previousSecond = localStorage.previousSecond;
-  previousThird = localStorage.previousThird;
-  var savedImages = localStorage.saveImages.split('^,');
-  console.log(savedImages);
-  for (var i = 0; i < savedImages.length; i++) {
-    savedImages[i] = JSON.parse(savedImages[i]);
+  if (localStorage.imageArray) {
+    counter = localStorage.counter;
+    whichSide = localStorage.whichSide.split(',');
+    previousFirst = localStorage.previousFirst;
+    previousSecond = localStorage.previousSecond;
+    previousThird = localStorage.previousThird;
+    var savedImages = localStorage.imageArray.split('^,');
+    for (var i = 0; i < savedImages.length; i++) {
+      imgArray[i] = JSON.parse(savedImages[i]);
+    }
+    console.log('load', localStorage);
+    if (counter != 25) {
+      changeListeners('previous', 'blank');
+      return;
+    }
+    chartUpdater();
+    console.log('load', localStorage);
   }
-  console.log(savedImages);
-  imgArray = savedImages;
-  var savedCharts = localStorage.saveCharts.split('^,');
-  clickedChart = JSON.parse(savedCharts[0]);
-  percentageChart = JSON.parse(savedCharts[1]);
-  whichImageChart = JSON.parse(savedCharts[2]);
-  if (counter != 25) {
-    changeListeners('current', 'blank');
-    previousFirst = firstImageNumber;
-    previousSecond = secondImageNumber;
-    previousThird = thirdImageNumber;
-    return;
-  }
-  chartUpdater();
 }
 
 // Initialize Application System
 
 
 load();
-save();
