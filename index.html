@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="./styles/reset.css">
     <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.2.5/tiny-slider.css">
     <title>Bus Mall</title>
   </head>
   <body>
@@ -14,8 +15,31 @@
       <img id="an" src="./assets/blank.jpg">
       <img id="image" src="./assets/blank.jpg">
     </section>
-    <canvas id="clicked_chart" height="600px" width="1000px"></canvas>
+    <section id="slider_section">
+      <div class="my-slider">
+        <div>
+          <canvas id="clicked_chart" height="600px" width="1000px"></canvas>
+        </div>
+        <div>
+          <canvas id="percentage_chart" height="600px" width="1000px"></canvas>
+        </div>
+        <div>
+          <canvas id="image_chosen_chart" height="600px" width="1000px"></canvas>
+        </div>
+      </div>
+    </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.2.5/min/tiny-slider.js"></script>
     <script src="./scripts/app.js"></script>
+    <script>
+      var slider = tns({
+        container: '.my-slider',
+        items: 1,
+        slideBy: 'page',
+        autoplay: true,
+        rewind: true,
+        autoplayHoverPause: true,
+      });
+    </script>
   </body>
 </html>

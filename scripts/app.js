@@ -3,7 +3,7 @@
 // App Scripts
 
 // Declared Variables
-
+var whichSide = [0, 0, 0];
 var possibleInputs;
 var counter = 0;
 var firstImageNumber;
@@ -28,16 +28,19 @@ function ImageBuilder (name) {
 }
 
 // Object Instanciation for Chart Objects
-var ctx = document.getElementById('clicked_chart').getContext('2d');
-var clickedChart = new Chart(ctx, {
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontFamily = 'Helvetica Neue';
+Chart.defaults.global.defaultFontSize = 16;
+var ctc = document.getElementById('clicked_chart').getContext('2d');
+var clickedChart = new Chart(ctc, {
   // The type of chart we want to create
-  type: 'bar',
+  type: 'horizontalBar',
 
   // The data for our dataset
   data: {
     labels: [],
     datasets: [{
-      label: 'Number of Times Clicked',
+      label: 'Number Of Times Clicked',
       backgroundColor: [],
       borderColor: '#000',
       data: []
@@ -46,7 +49,63 @@ var clickedChart = new Chart(ctx, {
 
   // Configuration options go here
   options: {
-    backgroundColor: []
+    scales: {
+      xAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+});
+
+var ctp = document.getElementById('percentage_chart').getContext('2d');
+var percentageChart = new Chart(ctp, {
+  // The type of chart we want to create
+  type: 'bar',
+
+  // The data for our dataset
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Percentage Clicked Vs Displayed',
+      backgroundColor: [],
+      borderColor: '#000',
+      data: []
+    }]
+  },
+
+  // Configuration options go here
+  options: {
+    scales: {
+      xAxes: [{
+        ticks: {
+          max: 100,
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+});
+
+var ctx = document.getElementById('image_chosen_chart').getContext('2d');
+var whichImageChart = new Chart(ctx, {
+  // The type of chart we want to create
+  type: 'pie',
+
+  // The data for our dataset
+  data: {
+    labels: ['Left', 'Center', 'Right'],
+    datasets: [{
+      label: 'Which Side Was More Favored',
+      backgroundColor: [],
+      borderColor: '#000',
+      data: []
+    }]
+  },
+
+  // Configuration options go here
+  options: {
   }
 });
 
@@ -61,12 +120,35 @@ for (var i = 0; i < imgNames.length; i++) {
 // updates chart information after 25 images
 
 function chartUpdater() {
+  // clickedChart.chart.config.data.labels = [];
+  // clickedChart.chart.config.data.datasets[0].data = [];
+  // clickedChart.chart.config.data.datasets[0].backgroundColor = [];
+  //
+  // percentageChart.chart.config.data.labels = [];
+  // percentageChart.chart.config.data.datasets[0].data = [];
+  // percentageChart.chart.config.data.datasets[0].backgroundColor = [];
+  //
+  // whichImageChart.chart.config.data.datasets[0].data = [];
+  // whichImageChart.chart.config.data.datasets[0].backgroundColor = [];
   for (var l = 0; l < imgArray.length; l++) {
-    clickedChart.chart.config.data.labels.push(imgArray[l].name);
+    clickedChart.chart.config.data.labels.push('Times ' + imgArray[l].name + ' was picked');
+    clickedChart.chart.config.data.labels.push('Times ' + imgArray[l].name + ' was displayed');
     clickedChart.chart.config.data.datasets[0].data.push(imgArray[l].picked);
+    clickedChart.chart.config.data.datasets[0].data.push(imgArray[l].displayed);
     clickedChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
-  };
+    clickedChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
+
+    percentageChart.chart.config.data.labels.push(imgArray[l].name);
+    percentageChart.chart.config.data.datasets[0].data.push(((imgArray[l].picked / imgArray[l].displayed) * 100));
+    percentageChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
+  }
+  for (var m = 0; m < 3; m++) {
+    whichImageChart.chart.config.data.datasets[0].data.push(whichSide[m]);
+    whichImageChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[m].color);
+  }
   clickedChart.update();
+  percentageChart.update();
+  whichImageChart.update();
 };
 
 
@@ -161,6 +243,11 @@ function increasePicked(name) {
         break;
       }
     }
+    for (var j = 0; j < 3; j++) {
+      if (name === possibleInputs.current[j].name) {
+        whichSide[j]++;
+      }
+    }
   }
 }
 
@@ -200,6 +287,12 @@ function displayPage() {
     // editEventListeners('add', 'blank');
     counter = 0;
     chartUpdater();
+    document.getElementById('slider_section').style.visibility = 'visible';
+    document.getElementById('slider_section').style.overflow = 'visible';
+    document.getElementById('slider_section').style.height = '700px';
+    document.getElementById('click').style.display = 'none';
+    document.getElementById('an').style.display = 'none';
+    document.getElementById('image').style.display = 'none';
   }
   previousFirst = firstImageNumber;
   previousSecond = secondImageNumber;
