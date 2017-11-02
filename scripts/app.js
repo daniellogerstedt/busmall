@@ -40,7 +40,7 @@ var clickedChart = new Chart(ctc, {
   data: {
     labels: [],
     datasets: [{
-      label: 'Number Of Times Clicked',
+      label: 'Number Of Times Clicked and Viewed',
       backgroundColor: [],
       borderColor: '#000',
       data: []
@@ -149,6 +149,12 @@ function chartUpdater() {
   clickedChart.update();
   percentageChart.update();
   whichImageChart.update();
+  document.getElementById('slider_section').style.visibility = 'visible';
+  document.getElementById('slider_section').style.overflow = 'visible';
+  document.getElementById('slider_section').style.height = '700px';
+  document.getElementById('click').style.display = 'none';
+  document.getElementById('an').style.display = 'none';
+  document.getElementById('image').style.display = 'none';
 };
 
 
@@ -258,10 +264,19 @@ function changeImages(add, remove) { // what am I adding what am I removing
   for (var i = 0; i < 3; i++) {
     document.getElementById(possibleInputs[remove][i].name).src = possibleInputs[add][i].path;
     document.getElementById(possibleInputs[remove][i].name).id = possibleInputs[add][i].name;
-    if (add != 'blank') {
+    if (add != 'blank' && add != 'previous') {
       possibleInputs.current[i].displayed++;
     }
   };
+}
+
+// Combined Image Listener System
+
+function changeListeners(added, removed) {
+  compareNumbers();
+  editEventListeners('remove', removed);
+  changeImages(added, removed);
+  editEventListeners('add', added);
 }
 
 // Display Page Contents function
@@ -270,34 +285,77 @@ function displayPage() {
   console.log(this.id);
   increasePicked(this.id);
   if (counter === 0) {
-    compareNumbers();
-    editEventListeners('remove', 'blank');
-    changeImages('current', 'blank');
-    editEventListeners('add', 'current');
+    // compareNumbers();
+    // editEventListeners('remove', 'blank');
+    // changeImages('current', 'blank');
+    // editEventListeners('add', 'current');
+    changeListeners('current', 'blank');
     counter++;
   } else if (counter < 25 && counter > 0) {
-    compareNumbers();
-    editEventListeners('remove', 'previous');
-    changeImages('current', 'previous');
-    editEventListeners('add', 'current'); // adds new event listeners and removes old ones
+    // compareNumbers();
+    // editEventListeners('remove', 'previous');
+    // changeImages('current', 'previous');
+    // editEventListeners('add', 'current'); // adds new event listeners and removes old ones
+    changeListeners('current', 'previous');
     counter++;
   } else if (counter === 25) {
     editEventListeners('remove', 'previous');
     changeImages('blank', 'previous');
     // editEventListeners('add', 'blank');
-    counter = 0;
     chartUpdater();
-    document.getElementById('slider_section').style.visibility = 'visible';
-    document.getElementById('slider_section').style.overflow = 'visible';
-    document.getElementById('slider_section').style.height = '700px';
-    document.getElementById('click').style.display = 'none';
-    document.getElementById('an').style.display = 'none';
-    document.getElementById('image').style.display = 'none';
   }
   previousFirst = firstImageNumber;
   previousSecond = secondImageNumber;
   previousThird = thirdImageNumber;
+  save();
 }
-// Test Click function
 
-editEventListeners('add', 'blank');
+// Saves App State To Local Storage
+
+function save() {
+  localStorage.counter = counter;
+  localStorage.whichSide = whichSide;
+  localStorage.previousFirst = previousFirst;
+  localStorage.previousSecond = previousSecond;
+  localStorage.previousThird = previousThird;
+  var saveImages = [];
+  for (var i = 0; i < imgNames.length; i++) { // stringifies/pushes objects and adds a carrot for easy splitting
+    if (i === (imgArray.length - 1)) {
+      saveImages.push(JSON.stringify(imgArray[i]));
+      break;
+    }
+    saveImages.push(JSON.stringify(imgArray[i]) + '^');
+  }
+  localStorage.imageArray = saveImages;
+
+  console.log('save', localStorage);
+}
+
+// Loads App State From Local Storage
+
+function load() {
+  editEventListeners('add', 'blank');
+  if (localStorage.imageArray) {
+    counter = localStorage.counter;
+    whichSide = localStorage.whichSide.split(',');
+    previousFirst = localStorage.previousFirst;
+    previousSecond = localStorage.previousSecond;
+    previousThird = localStorage.previousThird;
+    var savedImages = localStorage.imageArray.split('^,');
+    for (var i = 0; i < savedImages.length; i++) {
+      imgArray[i] = JSON.parse(savedImages[i]);
+    }
+    console.log('load', localStorage);
+    if (counter != 25) {
+      changeListeners('previous', 'blank');
+      return;
+    }
+    chartUpdater();
+    console.log('load', localStorage);
+  }
+}
+
+// Initialize Application System
+
+
+load();
