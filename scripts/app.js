@@ -272,6 +272,7 @@ function displayPage() {
   if (counter === 0) {
     compareNumbers();
     editEventListeners('remove', 'blank');
+    document.getElementById('instructional').innerHTML = 'Which Image Is Most Appealing?';
     changeImages('current', 'blank');
     editEventListeners('add', 'current');
     counter++;

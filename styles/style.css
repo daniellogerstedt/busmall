@@ -6,9 +6,17 @@ Body {
   background: maroon;
 }
 
+h1 {
+  font-weight: bold;
+  font-size: 50px;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 h2 {
   font-weight: bold;
-  font-size: 40px;
+  font-size: 30px;
   color: #fff;
   text-align: center;
 }
