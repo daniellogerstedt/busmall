@@ -120,16 +120,6 @@ for (var i = 0; i < imgNames.length; i++) {
 // updates chart information after 25 images
 
 function chartUpdater() {
-  // clickedChart.chart.config.data.labels = [];
-  // clickedChart.chart.config.data.datasets[0].data = [];
-  // clickedChart.chart.config.data.datasets[0].backgroundColor = [];
-  //
-  // percentageChart.chart.config.data.labels = [];
-  // percentageChart.chart.config.data.datasets[0].data = [];
-  // percentageChart.chart.config.data.datasets[0].backgroundColor = [];
-  //
-  // whichImageChart.chart.config.data.datasets[0].data = [];
-  // whichImageChart.chart.config.data.datasets[0].backgroundColor = [];
   for (var l = 0; l < imgArray.length; l++) {
     clickedChart.chart.config.data.labels.push('Times ' + imgArray[l].name + ' was picked');
     clickedChart.chart.config.data.labels.push('Times ' + imgArray[l].name + ' was displayed');
@@ -137,7 +127,6 @@ function chartUpdater() {
     clickedChart.chart.config.data.datasets[0].data.push(imgArray[l].displayed);
     clickedChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
     clickedChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
-
     percentageChart.chart.config.data.labels.push(imgArray[l].name);
     percentageChart.chart.config.data.datasets[0].data.push(((imgArray[l].picked / imgArray[l].displayed) * 100));
     percentageChart.chart.config.data.datasets[0].backgroundColor.push('#' + imgArray[l].color);
@@ -167,7 +156,6 @@ function getRandom() {
   var generatedNumber = Math.floor(Math.random() * imgArray.length); //Image Array Length
   while (generatedNumber === previousFirst || generatedNumber === previousSecond || generatedNumber === previousThird) {
     generatedNumber = Math.floor(Math.random() * imgArray.length); //Image Array Length
-    console.log('caught previous number');
   }
   return generatedNumber;
 }
@@ -178,20 +166,11 @@ function compareNumbers() {
   firstImageNumber = getRandom();
   secondImageNumber = getRandom();
   thirdImageNumber = getRandom();
-  // console.log('first number', firstImageNumber);
-  // console.log('second number', secondImageNumber);
-  // console.log('third number', thirdImageNumber);
-  console.log('Begin Second Number Comparator');
   while (secondImageNumber === firstImageNumber) {
-    console.log('generated number', secondImageNumber);
     secondImageNumber = getRandom();
-    console.log('regenerated second number', secondImageNumber);
   }
-  console.log('Begin Third Number Comparator');
   while (thirdImageNumber === firstImageNumber || thirdImageNumber === secondImageNumber) {
-    console.log('generated number', thirdImageNumber);
     thirdImageNumber = getRandom();
-    console.log('regenerated third number', thirdImageNumber);
   }
 }
 
@@ -205,24 +184,6 @@ function inputUpdater () {
   };
 }
 
-// Test Function for Random Number Generation
-
-// function testRun(){
-//
-//   for (var r = 0; r < 5; r++) {
-//     compareNumbers();
-//
-//     console.log('Run', r);
-//
-//     console.log('first number', firstImageNumber);
-//     console.log('second number', secondImageNumber);
-//     console.log('third number', thirdImageNumber);
-//
-//     console.log('Begin Next Run');
-//   }
-// }
-
-// testRun();
 
 // Event Listener Manipulation -- Based on input arguments will add/remove specific event listeners.
 
@@ -283,27 +244,17 @@ function changeListeners(added, removed) {
 // Display Page Contents function
 
 function displayPage() {
-  console.log(this.id);
   increasePicked(this.id);
   if (counter === 0) {
-    // compareNumbers();
-    // editEventListeners('remove', 'blank');
-    // changeImages('current', 'blank');
-    // editEventListeners('add', 'current');
     document.getElementById('instructional').innerHTML = 'Which Image Is Most Appealing?';
     changeListeners('current', 'blank');
     counter++;
   } else if (counter < 25 && counter > 0) {
-    // compareNumbers();
-    // editEventListeners('remove', 'previous');
-    // changeImages('current', 'previous');
-    // editEventListeners('add', 'current'); // adds new event listeners and removes old ones
     changeListeners('current', 'previous');
     counter++;
   } else if (counter === 25) {
     editEventListeners('remove', 'previous');
     changeImages('blank', 'previous');
-    // editEventListeners('add', 'blank');
     chartUpdater();
   }
   previousFirst = firstImageNumber;
@@ -329,8 +280,6 @@ function save() {
     saveImages.push(JSON.stringify(imgArray[i]) + '^');
   }
   localStorage.imageArray = saveImages;
-
-  console.log('save', localStorage);
 }
 
 // Loads App State From Local Storage
@@ -347,18 +296,15 @@ function load() {
     for (var i = 0; i < savedImages.length; i++) {
       imgArray[i] = JSON.parse(savedImages[i]);
     }
-    console.log('load', localStorage);
     if (counter > 0) document.getElementById('instructional').innerHTML = 'Which Image Is Most Appealing?';
     if (counter != 25) {
       changeListeners('previous', 'blank');
       return;
     }
     chartUpdater();
-    console.log('load', localStorage);
   }
 }
 
 // Initialize Application System
-
 
 load();
